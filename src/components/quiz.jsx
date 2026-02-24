@@ -11,9 +11,13 @@ export function Quiz() {
     let quiz = quizzes.find((quiz) => quiz.quizId == quizId)
     
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-    const [rightNavButton, setRightNavButton] = useState(["Next", false])
-    const [userAnswers, setUserAnswers] = useState( Array(quiz.questionsList.length))
+    const [rightNavButton, setRightNavButton] = useState(["Next", gotoNext])
+    const [userAnswers, setUserAnswers] = useState( Array(quiz.questionsList.length).fill(null))
+    const [submitted, setSubmitted] = useState(false)
     let correctAnswers = quiz.questionsList.map((question) => question.correctIndex)
+    let score = 0
+    const totalQuestions = quiz.questionsList.length
+    
 
     
 
@@ -39,13 +43,28 @@ export function Quiz() {
         })
     }
 
+    function checkAnswer() {
+        let nullIndex = userAnswers.indexOf(null)
+        console.log(userAnswers)
+        console.log(nullIndex)
+        if (nullIndex !== -1) {
+            console.log("Not Finished")
+            setCurrentQuestionIndex(nullIndex)
+        } else {setSubmitted(true)}
+    }
+
     useEffect(() => {
         if (currentQuestionIndex === quiz.questionsList.length-1) {
-            setRightNavButton(["Submit", rightNavButton[1]])
+            setRightNavButton(["Submit", checkAnswer])
         } else {
-            setRightNavButton(["Next", rightNavButton[1]])
+            setRightNavButton(["Next", gotoNext])
         }
-    }, [currentQuestionIndex])
+    }, [currentQuestionIndex, userAnswers])
+
+
+    if (submitted == true) {
+        return <ScoreCard score={score} total={totalQuestions}/>
+    }
 
     return (
         <>
@@ -76,7 +95,7 @@ export function Quiz() {
                 </div>
                 <div className="navigation-container">
                         <button disabled={currentQuestionIndex === 0} onClick={() => gotoPrev()}>Previous</button>
-                        <button disabled={rightNavButton[1]} onClick={() => gotoNext()}>{rightNavButton[0]}</button>
+                        <button onClick={rightNavButton[1]}>{rightNavButton[0]}</button>
                 </div>
             </div>
         </>
