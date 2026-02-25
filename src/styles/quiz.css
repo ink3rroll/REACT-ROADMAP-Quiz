@@ -70,3 +70,8 @@
 .navigation-container button:focus {
   outline: transparent;
 }
+
+.score-container {
+    display: grid;
+    gap: 10px;
+}

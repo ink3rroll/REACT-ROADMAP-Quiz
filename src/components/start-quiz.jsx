@@ -8,15 +8,13 @@ export function Start() {
         <div>
             {quizzes.map((quiz) => {
                 return (
-                    <>
-                    <div className="quiz-item">
+                    <div key={quiz.quizId} className="quiz-item">
                         <h2>{quiz.quizTitle}</h2>
                         <h4>{quiz.questionsList.length} Items</h4>
                         <button onClick={() => navigate(`quiz/${quiz.quizId}`)}>Start Quiz</button>
                         <hr />
                     </div>
-                        
-                    </>
+
                 )
                 
             })}

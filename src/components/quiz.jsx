@@ -14,8 +14,9 @@ export function Quiz() {
     const [rightNavButton, setRightNavButton] = useState(["Next", gotoNext])
     const [userAnswers, setUserAnswers] = useState( Array(quiz.questionsList.length).fill(null))
     const [submitted, setSubmitted] = useState(false)
+    const [checkDisplay, setCheckDisplay] = useState(Array(quiz.questionsList.length).fill(null))
     let correctAnswers = quiz.questionsList.map((question) => question.correctIndex)
-    let score = 0
+    let score = null
     const totalQuestions = quiz.questionsList.length
     
 
@@ -50,12 +51,23 @@ export function Quiz() {
         if (nullIndex !== -1) {
             console.log("Not Finished")
             setCurrentQuestionIndex(nullIndex)
-        } else {setSubmitted(true)}
+        } else {
+            setCheckDisplay(correctAnswers.map((correctAnswer, index) => {
+                if (correctAnswer === userAnswers[index]) {
+                    return correctAnswer
+                }
+
+                else {
+                    return [correctAnswer, userAnswers[index]]
+                }
+            }))
+            setSubmitted(true)
+        }
     }
 
     useEffect(() => {
         if (currentQuestionIndex === quiz.questionsList.length-1) {
-            setRightNavButton(["Submit", checkAnswer])
+            setRightNavButton([checkDisplay.includes(null) ? "Submit" : "See Score", checkAnswer])
         } else {
             setRightNavButton(["Next", gotoNext])
         }
@@ -63,7 +75,9 @@ export function Quiz() {
 
 
     if (submitted == true) {
-        return <ScoreCard score={score} total={totalQuestions}/>
+        console.log(checkDisplay)
+        score = checkDisplay.filter(item => Number.isInteger(item)).length
+        return <ScoreCard score={score} total={totalQuestions} setSubmitted={setSubmitted} setCurrentQuestionIndex={setCurrentQuestionIndex}/>
     }
 
     return (
@@ -83,14 +97,28 @@ export function Quiz() {
                         </div>
                     </div>
                     <div className="choices-container">
-                        {quiz.questionsList[currentQuestionIndex].questionChoices.map((choice, index) => {
+                        {
+                            checkDisplay.includes(null) ? (
+                                quiz.questionsList[currentQuestionIndex].questionChoices.map((choice, index) => {
                             return (
                                 <button key={index}
                                 style={{ 
                                     backgroundColor: (userAnswers[currentQuestionIndex] === index ? `#53504c` : `#363636`)
                                 }} onClick={() => selectAnswer(index, currentQuestionIndex)}>{choice}</button>
                             )
-                        })}
+                        })
+                            ) : (
+                                quiz.questionsList[currentQuestionIndex].questionChoices.map((choice, index) => {
+                            return (
+                                <button key={index}
+                                style={{ 
+                                    backgroundColor: (Number.isInteger(checkDisplay[currentQuestionIndex]) ? (checkDisplay[currentQuestionIndex] === index ? `#5AAD69` : `#363636`) : (checkDisplay[currentQuestionIndex][0] === index ? `#3F6B47` : userAnswers[currentQuestionIndex] === index ? `#632F2F` : `#363636`))
+                                }} >{choice}</button>
+                            )
+                        })
+                            )
+                        }
+                        
                     </div>
                 </div>
                 <div className="navigation-container">
